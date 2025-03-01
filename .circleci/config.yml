@@ -11,7 +11,7 @@ jobs:
           command: python -m pip install --upgrade pip requests python-dotenv
       - run:
           name: Run Python Tests
-          working_directory: SSW - 567/Homework
+          working_directory: Homework
           command: python -m unittest discover -s .
 
 workflows:
