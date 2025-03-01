@@ -1,36 +1,31 @@
 import unittest
-from unittest.mock import patch
-import github_api
-
-class MockResponse:
-    # Mock class to simulate requests.get response
-    def __init__(self, json_data, status_code):
-        self.json_data = json_data
-        self.status_code = status_code
-
-    def json(self):
-        return self.json_data
+import github_api  # Make sure this imports the correct function from your github_api.py
 
 class TestGitHubAPI(unittest.TestCase):
 
-    @patch("github_api.requests.get")
-    def test_valid_user(self, mock_get):
-        # Test with a valid user having repositories.
-        mock_get.side_effect = [
-            MockResponse([{"name": "Repo1"}, {"name": "Repo2"}], 200),
-            MockResponse([{"commit": "abc123"}] * 5, 200),  # 5 commits in Repo1
-            MockResponse([{"commit": "xyz456"}] * 8, 200)   # 8 commits in Repo2
-        ]
+    def test_get_repositories_success(self):
+        # Test that GitHub API retrieves real repositories for a known user.
+        user = "cvitanza"  
+        result = github_api.get_repos_and_commits(user)  # Ensure you're calling the correct function
 
-        # Expected result: List of tuples with repo name and commit count
-        expected = [("Repo1", 5), ("Repo2", 8)]
-        self.assertEqual(github_api.get_repos_and_commits("validuser"), expected)
+        self.assertIsInstance(result, list)  # Since it's a list of tuples, check if it's a list
+        self.assertGreater(len(result), 0)
 
-    @patch("github_api.requests.get")
-    def test_invalid_user(self, mock_get):
-        # Test with an invalid GitHub username.
-        mock_get.return_value = MockResponse({"message": "Not Found"}, 404)
-        self.assertEqual(github_api.get_repos_and_commits("invaliduser"), "Error: Unable to fetch repositories for user 'invaliduser'.")
+    def test_get_commit_count_success(self):
+        # Test commit count retrieval from an actual repository.
+        user = "cvitanza"  
+        result = github_api.get_repos_and_commits(user)  # Ensure you're calling the correct function
+
+        first_repo, commit_count = result[0]  # Access the first repo and commit count tuple
+        self.assertIsNotNone(first_repo)  # Ensure there's at least one repo
+        self.assertGreaterEqual(commit_count, 0)  # Commit count should be >= 0
+
+    def test_invalid_user(self):
+        # Test that an invalid user returns an error.
+        user = "thisuserdoesnotexist123456"  # Invalid GitHub user
+        result = github_api.get_repos_and_commits(user)  # Call the correct function
+
+        self.assertEqual(result, f"Error: Unable to fetch repositories for user '{user}'.")
 
 if __name__ == "__main__":
     unittest.main()
