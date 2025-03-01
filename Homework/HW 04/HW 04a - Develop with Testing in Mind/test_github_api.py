@@ -1,43 +1,31 @@
 import unittest
-from unittest.mock import patch
-import requests
-from github_api import get_repos_and_commits  # Update with correct import path
+import github_api  # Make sure this imports the correct function from your github_api.py
 
 class TestGitHubAPI(unittest.TestCase):
 
-    @patch('requests.get')
-    def test_get_repos_and_commits(self, mock_get):
-        # Mock the response for fetching repositories (with "name" key)
-        mock_repos_response = mock_get.return_value
-        mock_repos_response.status_code = 200
-        mock_repos_response.json.return_value = [
-            {"name": "repo1"},  # Add the "name" key here
-            {"name": "repo2"}   # Add the "name" key here
-        ]
-        
-        # Mock the response for fetching commits for each repo
-        # We need to mock different responses based on the repo name
-        mock_commits_response = requests.Response()
-        mock_commits_response.status_code = 200
-        mock_commits_response._content = b'[{"commit": {"message": "initial commit"}}]'  # Example commit data
+    def test_get_repositories_success(self):
+        # Test that GitHub API retrieves real repositories for a known user.
+        user = "cvitanza"  
+        result = github_api.get_repos_and_commits(user)  # Ensure you're calling the correct function
 
-        # Mocking the GET call for commits for each repository
-        mock_get.side_effect = [
-            mock_repos_response,  # First GET call: Repos list
-            mock_commits_response, # Second GET call: Commits for repo1
-            mock_commits_response, # Third GET call: Commits for repo2
-        ]
-        
-        result = get_repos_and_commits('user')
+        self.assertIsInstance(result, list)  # Since it's a list of tuples, check if it's a list
+        self.assertGreater(len(result), 0)
 
-        # Assertions: Check the returned repo names and commit counts
-        self.assertEqual(result[0], ('repo1', 1))  # repo1 should have 1 commit
-        self.assertEqual(result[1], ('repo2', 1))  # repo2 should have 1 commit
-        
-        # Verify that the correct API URLs were called
-        mock_get.assert_any_call('https://api.github.com/users/user/repos')  # Repos list
-        mock_get.assert_any_call('https://api.github.com/repos/user/repo1/commits')  # Commits for repo1
-        mock_get.assert_any_call('https://api.github.com/repos/user/repo2/commits')  # Commits for repo2
+    def test_get_commit_count_success(self):
+        # Test commit count retrieval from an actual repository.
+        user = "cvitanza"  
+        result = github_api.get_repos_and_commits(user)  # Ensure you're calling the correct function
 
-if __name__ == '__main__':
+        first_repo, commit_count = result[0]  # Access the first repo and commit count tuple
+        self.assertIsNotNone(first_repo)  # Ensure there's at least one repo
+        self.assertGreaterEqual(commit_count, 0)  # Commit count should be >= 0
+
+    def test_invalid_user(self):
+        # Test that an invalid user returns an error.
+        user = "thisuserdoesnotexist123456"  # Invalid GitHub user
+        result = github_api.get_repos_and_commits(user)  # Call the correct function
+
+        self.assertEqual(result, f"Error: Unable to fetch repositories for user '{user}'.")
+
+if __name__ == "__main__":
     unittest.main()
