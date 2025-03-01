@@ -34,5 +34,10 @@ To run the unit tests, use the following command:
 python -m unittest discover
 ```
 
-## Continuous Integration with Travis CI
-This project is integrated with Travis CI to automatically build and test the code on every commit. You can check the build status below:
+## Continuous Integration with CircleCI
+
+This project is integrated with **CircleCI** to automatically build and test the code on every commit. You can check the build status below:
+
+[![CircleCI](https://circleci.com/gh/cvitanza/SSW-567.svg?style=shield)](https://circleci.com/gh/cvitanza/SSW-567)
+
+
