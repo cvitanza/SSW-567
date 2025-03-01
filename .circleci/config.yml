@@ -11,7 +11,7 @@ jobs:
           command: python -m pip install --upgrade pip requests python-dotenv
       - run:
           name: Run Python Tests
-          working_directory: Homework
+          working_directory: HW 04/HW 04a - Develop with Testing in Mind
           command: python -m unittest discover -s .
 
 workflows:
