@@ -1,9 +1,0 @@
-language: python
-python:
-  - "3.8"
-
-install:
-  - pip install -r requirements.txt  # If you have dependencies, list them in requirements.txt
-
-script:
-  - python -m unittest discover  # Runs all unit tests in the project
